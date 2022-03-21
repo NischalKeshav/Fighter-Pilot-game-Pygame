@@ -60,10 +60,20 @@ class Bomber:
 
 
 class Player:
+  def load(self):
+      pygame.draw.rect(Screen, (255, 0, 255),(self.x, self.y, self.width, self.height))
   def __init__(self):
     self.x = 300
     self.y = 300
-    
+    self.width = 40
+    self.height = 40
+    self.load()
+  def MouseClickResponse(self,event):
+    if event.pos[0]-self.x in range(-30,30) and event.pos[1]-self.y in range(-30,30):
+          if event.pos[0] - self.x in range(-30,30):
+              self.x = event.pos[0]
+          if event.pos[1] - self.y in range(-30,30):
+              self.y = event.pos[1]
 
 
 
@@ -73,7 +83,10 @@ Bomber1 = Bomber(20, 20, 40, 40)
 Bomber2 = Bomber(560, 20, 30, 70)
 Bomber3 = Bomber(20, 560, 60, 35)
 Bomber4 = Bomber(550, 540, 30, 50)
+Player = Player()
+
 count = 0
+MouseDown = False
 # game loop
 while running:
     count += 1
@@ -84,8 +97,18 @@ while running:
         if event.type == pygame.QUIT:
             running = False
             pygame.quit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            Player.MouseClickResponse(event)
+            MouseDown = True
+        elif event.type == pygame.MOUSEMOTION and MouseDown:
+            Player.MouseClickResponse(event)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            MouseDown = False
+
+
 
     Screen.fill(background_colour)
+    Player.load()
     for obj in EnemyList:
         obj.move()
         if count % 500 == 0 and obj.xMove < 10:
