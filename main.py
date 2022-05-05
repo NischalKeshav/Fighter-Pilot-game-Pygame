@@ -1,7 +1,7 @@
 import pygame
 import time
 import random
-
+import math
 pygame.init()  #initialize pygame
 
 background_colour = (0, 0, 0)
@@ -38,8 +38,8 @@ class Bomber:
                          (self.x, self.y, self.width, self.height))
 
         angleList = [1, 2, 3]
-        self.xMove = random.choice(angleList)
-        self.yMove = random.choice(angleList)
+        self.xMove = random.choice(angleList)*1.5
+        self.yMove = random.choice(angleList)*1.5
 
         list.append(self)
 
@@ -87,10 +87,59 @@ Player = Player()
 
 count = 0
 MouseDown = False
+def collide(enemyX,enemyY,bulletX,bulletY):
+    distance = math.sqrt(math.pow(enemyX-bulletX,2) + math.pow(enemyY-bulletY,2))
+    if distance <=36:
+        return True
+    else:
+        return False
+
+
+
+
+# create a font object.
+# 1st parameter is the font file
+# which is present in pygame.
+# 2nd parameter is size of the font
+font = pygame.font.Font('freesansbold.ttf', 32)
+
+# create a text surface object,
+# on which text is drawn on it.
+pygame.display.set_caption('Show Text')
+
+# create a font object.
+# 1st parameter is the font file
+# which is present in pygame.
+# 2nd parameter is size of the font
+FONT = pygame.font.Font('freesansbold.ttf', 12)
+
+
+class ScoreBoard:
+    def __init__(self):
+        self.STARTTIME = time.time()
+        pygame.display.set_caption('Show Text')
+        # create a text surface object,
+        # on which text is drawn on it.
+        text = font.render(str(time.time()-self.STARTTIME), True, (255,255,255), (100,100,100))
+    def show_time(self):
+        self.time = str(time.time()-self.STARTTIME)[:5]
+        self.text = font.render(str(self.time), True, (255, 255, 255), (0,0,0))
+        Screen.blit(self.text, (300,20))
+    def GameOver(self):
+        while 1:
+            for event in pygame.event.get():
+                # Check for QUIT event
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+            self.text = font.render("Final Time:  "+str(self.time), True, (255, 255, 255), (0, 0, 0))
+            Screen.blit(self.text, (100, 250))
+            pygame.display.update()
+ScoreBoard = ScoreBoard()
 # game loop
 while running:
     count += 1
-
+    Screen.fill(background_colour)
     # for loop through the event queue
     for event in pygame.event.get():
         # Check for QUIT event
@@ -107,11 +156,15 @@ while running:
 
 
 
-    Screen.fill(background_colour)
+
     Player.load()
     for obj in EnemyList:
         obj.move()
         if count % 500 == 0 and obj.xMove < 10:
-            obj.xMove *= 1.25
+            obj.xMove *= 1.1
+        if collide(obj.x,obj.y,Player.x,Player.y):
+            running = False
+    ScoreBoard.show_time()
     pygame.display.update()
     time.sleep(0.01)
+ScoreBoard.GameOver()
